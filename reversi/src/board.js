@@ -71,6 +71,11 @@ Board.prototype.isMine = function (pos, color) {
  * Checks if a given position has a piece on it.
  */
 Board.prototype.isOccupied = function (pos) {
+  if (!this.grid[pos[0]][pos[1]]){
+    return false;
+  }else{
+    return true;
+  }
 };
 
 /**
@@ -86,8 +91,36 @@ Board.prototype.isOccupied = function (pos) {
  *
  * Returns empty array if no pieces of the opposite color are found.
  */
-Board.prototype._positionsToFlip = function(pos, color, dir, piecesToFlip){
+//validpos, ismine, isoccpuied
+// pos = [2,2]
+// dir = [0,1]
+// positionsToCheck = [[2,3],[2,4],[2,5],[2,6],[2,7]]
+//piecesToFlip to collect our outputs
+//increment position by direction per recursive call
+//check if valid, occupied etc
+Board.prototype._positionsToFlip = function(pos, color, dir, piecesToFlip = []){
+
+  // if (!this.isValidPos(pos) || (this.isOccupied(pos) && this.isMine(pos,color))){
+  //   return [];
+  //   }
+  let newPos = [pos[0] + dir[0], pos[1] + dir[1]]
+  if (!this.isValidPos(newPos)) {
+    return [];
+  } else if (!this.isOccupied(newPos)) {
+    return [];
+  } else if (!this.isMine(newPos,color)) {
+    return [];
+  } else {
+    return this._positionsToFlip(newPos,color,dir,piecesToFlip)
+  }
 };
+
+// Board.prototype._positionsToFlip = function(pos, color, dir, piecesToFlip){
+//   if (!this.isValidPos(pos) || (this.isOccupied(pos) && this.isMine(pos,color))){
+//     return [];
+//     }
+  
+// };
 
 /**
  * Checks that a position is not already occupied and that the color

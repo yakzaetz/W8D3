@@ -100,27 +100,18 @@ Board.prototype.isOccupied = function (pos) {
 //check if valid, occupied etc
 Board.prototype._positionsToFlip = function(pos, color, dir, piecesToFlip = []){
 
-  // if (!this.isValidPos(pos) || (this.isOccupied(pos) && this.isMine(pos,color))){
-  //   return [];
-  //   }
   let newPos = [pos[0] + dir[0], pos[1] + dir[1]]
   if (!this.isValidPos(newPos)) {
     return [];
   } else if (!this.isOccupied(newPos)) {
     return [];
-  } else if (!this.isMine(newPos,color)) {
-    return [];
+  } else if (this.isMine(newPos,color)) {
+    return piecesToFlip.length === 0 ? [] : piecesToFlip; 
   } else {
+    piecesToFlip.push(newPos)
     return this._positionsToFlip(newPos,color,dir,piecesToFlip)
   }
 };
-
-// Board.prototype._positionsToFlip = function(pos, color, dir, piecesToFlip){
-//   if (!this.isValidPos(pos) || (this.isOccupied(pos) && this.isMine(pos,color))){
-//     return [];
-//     }
-  
-// };
 
 /**
  * Checks that a position is not already occupied and that the color
@@ -128,6 +119,16 @@ Board.prototype._positionsToFlip = function(pos, color, dir, piecesToFlip = []){
  * color being flipped.
  */
 Board.prototype.validMove = function (pos, color) {
+  if (this.isOccupied(pos)){
+    return false;
+  }
+  for (let i = 0; i < Board.DIRS.length; i++){
+    const piecesToFlip = this._positionsToFlip(pos, color, Board.DIRS[i]);
+    if (piecesToFlip.length > 0) {
+      return true;
+    }
+  }
+  return false;
 };
 
 /**
@@ -137,8 +138,25 @@ Board.prototype.validMove = function (pos, color) {
  * Throws an error if the position represents an invalid move.
  */
 Board.prototype.placePiece = function (pos, color) {
-};
+  if (!this.validMove(pos, color)){
+    throw new Error("Invalid move!");
+  }
+  let finalPiecesToFlip = [];
+  for (let i = 0; i < Board.DIRS.length; i++) {
+    let piecesToFlip = this._positionsToFlip(pos, color, Board.DIRS[i]);
+    return finalPiecesToFlip.concat(piecesToFlip);
+  }
+  console.log(finalPiecesToFlip)
+  finalPiecesToFlip.forEach(pos => {
 
+    this.getPiece(pos).flip;
+  })
+  this.grid[pos[0]][pos[1]] = new Piece(color);
+  // console.log(test)
+};
+let test = new Board;
+// console.log(test)
+console.log(test.placePiece([2,3], "black"))
 /**
  * Produces an array of all valid positions on
  * the Board for a given color.
